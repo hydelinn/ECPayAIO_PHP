@@ -28,6 +28,7 @@ if (!class_exists('EcpayLogisticsSubType', false)) {
         const FAMILY_C2C = 'FAMIC2C';// 全家店到店
         const UNIMART_C2C = 'UNIMARTC2C';// 統一超商寄貨便
         const HILIFE_C2C = 'HILIFEC2C';// 萊爾富富店到店
+        const OKMART_C2C = 'OKMARTC2C';// OK 超商店到店
     }
 }
 /**
@@ -81,6 +82,7 @@ if (!class_exists('EcpayUrl', false)) {
         const PRINT_UNIMART_C2C_BILL = 'https://logistics.ecpay.com.tw/Express/PrintUniMartC2COrderInfo';// 列印繳款單(統一超商C2C)
         const PRINT_FAMILY_C2C_BILL = 'https://logistics.ecpay.com.tw/Express/PrintFAMIC2COrderInfo';// 全家列印小白單(全家超商C2C)
         const Print_HILIFE_C2C_BILL = 'https://logistics.ecpay.com.tw/Express/PrintHILIFEC2COrderInfo';// 萊爾富列印小白單(萊爾富超商C2C)
+        const Print_OKMART_C2C_BILL = 'https://logistics.ecpay.com.tw/Express/PrintOKMARTC2COrderInfo';// OK列印小白單(萊爾富超商C2C)
         const CREATE_TEST_DATA = 'https://logistics.ecpay.com.tw/Express/CreateTestData';// 產生 B2C 測標資料
     }
 }
@@ -105,6 +107,7 @@ if (!class_exists('EcpayTestUrl', false)) {
         const PRINT_UNIMART_C2C_BILL = 'https://logistics-stage.ecpay.com.tw/Express/PrintUniMartC2COrderInfo';// 列印繳款單(統一超商C2C)
         const PRINT_FAMILY_C2C_BILL = 'https://logistics-stage.ecpay.com.tw/Express/PrintFAMIC2COrderInfo';// 全家列印小白單(全家超商C2C)
         const Print_HILIFE_C2C_BILL = 'https://logistics-stage.ecpay.com.tw/Express/PrintHILIFEC2COrderInfo';// 萊爾富列印小白單(萊爾富超商C2C)
+        const Print_OKMART_C2C_BILL = 'https://logistics-stage.ecpay.com.tw/Express/PrintOKMARTC2COrderInfo';// OK列印小白單(萊爾富超商C2C)
         const CREATE_TEST_DATA = 'https://logistics-stage.ecpay.com.tw/Express/CreateTestData';// 產生 B2C 測標資料
     }
 }
@@ -300,15 +303,15 @@ if (!class_exists('EcpayLogistics', false)) {
                         'SenderAddress' => '',
                         'ReceiverZipCode' => '',
                         'ReceiverAddress' => '',
-						'Temperature' => EcpayTemperature::ROOM,
-						'Distance' => EcpayDistance::SAME,
-						'Specification' => EcpaySpecification::CM_60,
+                        'Temperature' => EcpayTemperature::ROOM,
+                        'Distance' => EcpayDistance::SAME,
+                        'Specification' => EcpaySpecification::CM_60,
                         'ScheduledDeliveryTime' => '',
                         'ScheduledDeliveryDate' => '',
                         'PackageCount' => 0
                     );
                     $this->PostParams = $this->GetPostParams($this->SendExtend, $HomeParamList, $this->PostParams);
-					$this->PostParams['ScheduledPickupTime'] = EcpayScheduledPickupTime::UNLIMITED;
+                    $this->PostParams['ScheduledPickupTime'] = EcpayScheduledPickupTime::UNLIMITED;
 
                     $this->ValidateZipCode('SenderZipCode', $this->PostParams['SenderZipCode']);
                     $this->ValidateAddress('SenderAddress', $this->PostParams['SenderAddress'], 6, 60);
@@ -338,8 +341,8 @@ if (!class_exists('EcpayLogistics', false)) {
                 }
             }
 
-            if ($this->PostParams['LogisticsSubType'] == EcpayLogisticsSubType::HILIFE_C2C or $this->PostParams['LogisticsSubType'] == EcpayLogisticsSubType::UNIMART_C2C) {
-                // 物流子類型(LogisticsSubType)為萊爾富店到店(HILIFEC2C)、 統一超商交貨便(UNIMARTC2C)時，不可為空
+            if ($this->PostParams['LogisticsSubType'] == EcpayLogisticsSubType::HILIFE_C2C or $this->PostParams['LogisticsSubType'] == EcpayLogisticsSubType::UNIMART_C2C or $this->PostParams['LogisticsSubType'] == EcpayLogisticsSubType::OKMART_C2C) {
+                // 物流子類型(LogisticsSubType)為萊爾富店到店(HILIFEC2C)、 統一超商交貨便(UNIMARTC2C)、 OK超商店到店(OKMARTC2C)時，不可為空
                 $this->ValidateString('GoodsName', $this->PostParams['GoodsName'], 60);
             } else {
                 $this->ValidateString('GoodsName', $this->PostParams['GoodsName'], 60, true);
@@ -358,8 +361,8 @@ if (!class_exists('EcpayLogistics', false)) {
                 if (empty($this->PostParams['SenderPhone']) and empty($this->PostParams['SenderCellPhone'])) {
                     throw new Exception('SenderPhone or SenderCellPhone is required when LogisticsType is Home.');
                 }
-            } else if ($this->PostParams['LogisticsSubType'] == EcpayLogisticsSubType::HILIFE_C2C or $this->PostParams['LogisticsSubType'] == EcpayLogisticsSubType::UNIMART_C2C) {
-                // 物流子類型(LogisticsSubType)為統一超商交貨便(UNIMARTC2C)、萊爾富店到店(HILIFEC2C)時，寄件人手機(SenderCellPhone)不可為空
+            } else if ($this->PostParams['LogisticsSubType'] == EcpayLogisticsSubType::HILIFE_C2C or $this->PostParams['LogisticsSubType'] == EcpayLogisticsSubType::UNIMART_C2C or $this->PostParams['LogisticsSubType'] == EcpayLogisticsSubType::OKMART_C2C) {
+                // 物流子類型(LogisticsSubType)為統一超商交貨便(UNIMARTC2C)、萊爾富店到店(HILIFEC2C)、 OK超商店到店(OKMARTC2C)時，寄件人手機(SenderCellPhone)不可為空
                 if (empty($this->PostParams['SenderCellPhone'])) {
                     throw new Exception('SenderCellPhone is required when LogisticsSubType is UNIMARTC2C or HILIFEC2C.');
                 }
@@ -370,7 +373,7 @@ if (!class_exists('EcpayLogistics', false)) {
 
             $this->ValidatePhoneNumber('ReceiverPhone', $this->PostParams['ReceiverPhone'], true);
             $this->ValidateCellphoneNumber('ReceiverCellPhone', $this->PostParams['ReceiverCellPhone'], true);
-			if ($this->PostParams['LogisticsType'] == EcpayLogisticsType::HOME) {
+            if ($this->PostParams['LogisticsType'] == EcpayLogisticsType::HOME) {
                 // 物流類型(LogisticsType)為宅配(Home)時，收件人電話(ReceiverPhone)或收件人手機(ReceiverCellPhone)不可為空
                 if (empty($this->PostParams['ReceiverPhone']) and empty($this->PostParams['ReceiverCellPhone'])) {
                     throw new Exception('ReceiverPhone or ReceiverCellPhone is required when LogisticsType is Home.');
@@ -454,7 +457,7 @@ if (!class_exists('EcpayLogistics', false)) {
 
             // 幕後物流訂單建立不可設定Client端回覆網址(ClientReplyURL)
             if (!empty($this->Send['ClientReplyURL'])) {
-            throw new Exception('ClientReplyURL should be null.');
+                throw new Exception('ClientReplyURL should be null.');
             }
 
             $this->PostParams = $this->GetPostParams($this->Send, $ParamList);
@@ -488,9 +491,9 @@ if (!class_exists('EcpayLogistics', false)) {
                         'SenderAddress' => '',
                         'ReceiverZipCode' => '',
                         'ReceiverAddress' => '',
-						'Temperature' => EcpayTemperature::ROOM,
-						'Distance' => EcpayDistance::SAME,
-						'Specification' => EcpaySpecification::CM_60,
+                        'Temperature' => EcpayTemperature::ROOM,
+                        'Distance' => EcpayDistance::SAME,
+                        'Specification' => EcpaySpecification::CM_60,
                         'ScheduledDeliveryTime' => '',
                         'ScheduledDeliveryDate' => '',
                         'PackageCount' => 0
@@ -616,11 +619,11 @@ if (!class_exists('EcpayLogistics', false)) {
             $Result = array();
             $Result['ResCode'] = $Pieces[0];
             if ($Result['ResCode']) {
-            $RtnCont = array();
-            parse_str($Pieces[1], $RtnCont);
-            $Result = array_merge($Result, $RtnCont);
+                $RtnCont = array();
+                parse_str($Pieces[1], $RtnCont);
+                $Result = array_merge($Result, $RtnCont);
             } else {
-            $Result['ErrorMessage'] = $Pieces[1];
+                $Result['ErrorMessage'] = $Pieces[1];
             }
 
             return $Result;
@@ -682,10 +685,10 @@ if (!class_exists('EcpayLogistics', false)) {
                 'ReceiverAddress' => '',
                 'GoodsAmount' => '',
                 'GoodsName' => '',
-				'Temperature' => EcpayTemperature::ROOM,
-				'Distance' => EcpayDistance::SAME,
-				'Specification' => EcpaySpecification::CM_60,
-				'ScheduledPickupTime' => EcpayScheduledPickupTime::UNLIMITED,
+                'Temperature' => EcpayTemperature::ROOM,
+                'Distance' => EcpayDistance::SAME,
+                'Specification' => EcpaySpecification::CM_60,
+                'ScheduledPickupTime' => EcpayScheduledPickupTime::UNLIMITED,
                 'ScheduledDeliveryTime' => '',
                 'ScheduledDeliveryDate' => '',
                 'PackageCount' => 0,
@@ -753,7 +756,7 @@ if (!class_exists('EcpayLogistics', false)) {
             }
 
             // 若物流交易編號(AllPayLogisticsID)為空值時，收件人郵遞區號(ReceiverZipCode)不可為空。
-                $this->ValidateZipCode('ReceiverZipCode', $this->PostParams['ReceiverZipCode'], $IsAllowEmpty);
+            $this->ValidateZipCode('ReceiverZipCode', $this->PostParams['ReceiverZipCode'], $IsAllowEmpty);
 
             // 若物流交易編號(AllPayLogisticsID)為空值時，收件人地址(ReceiverAddress)不可為空。
             $this->ValidateAddress('ReceiverAddress', $this->PostParams['ReceiverAddress'], 6, 60, $IsAllowEmpty);
@@ -1219,7 +1222,7 @@ if (!class_exists('EcpayLogistics', false)) {
             $this->PostParams['CheckMacValue'] = EcpayCheckMacValue::Generate($this->PostParams, $this->HashKey, $this->HashIV);
 
             // 解析回傳結果
-                // 回應訊息：MerchantID=XXX&MerchantTradeNo=XXX&AllPayLogisticsID=XXX&GoodsAmount=XXX&LogisticsType=XXX&HandlingCharge=XXX&TradeDate=XXX&LogisticsStatus=XXX&GoodsName=XXX &CheckMacValue=XXX
+            // 回應訊息：MerchantID=XXX&MerchantTradeNo=XXX&AllPayLogisticsID=XXX&GoodsAmount=XXX&LogisticsType=XXX&HandlingCharge=XXX&TradeDate=XXX&LogisticsStatus=XXX&GoodsName=XXX &CheckMacValue=XXX
             $Result = array();
             $Feedback = static::ServerPost($this->PostParams, $this->ServiceURL);
             parse_str($Feedback, $Result);
@@ -1362,6 +1365,39 @@ if (!class_exists('EcpayLogistics', false)) {
             return $this->GenPostHTML($ButtonDesc, $Target);
         }
 
+        /**
+         *  OK超商列印小白單(OK超商C2C)
+         *
+         * @param     string    $ButtonDesc 按鈕顯示名稱
+         * @param     string    $Target 表單 action 目標
+         * @return    string
+         */
+        public function PrintOkMartC2CBill($ButtonDesc = 'OK超商列印小白單(OK超商C2C)', $Target = '_blank')
+        {
+
+            // 參數初始化
+            $ParamList = array(
+                'MerchantID' => '',
+                'AllPayLogisticsID' => '',
+                'CVSPaymentNo' => '',
+                'PlatformID' => ''
+            );
+            $this->PostParams = $this->GetPostParams($this->Send, $ParamList);
+
+            // 參數檢查
+            $this->ValidateHashKey();
+            $this->ValidateHashIV();
+            $this->ValidateID('MerchantID', $this->PostParams['MerchantID'], 10);
+            $this->ServiceURL = $this->GetURL('Print_OKMART_C2C_BILL');
+            $this->ValidateID('AllPayLogisticsID', $this->PostParams['AllPayLogisticsID'], 20);
+            $this->ValidateMixTypeID('CVSPaymentNo', $this->PostParams['CVSPaymentNo'], 15);
+            $this->ValidateID('PlatformID', $this->PostParams['PlatformID'], 10, true);
+
+            // 產生 CheckMacValue
+            $this->PostParams['CheckMacValue'] = EcpayCheckMacValue::Generate($this->PostParams, $this->HashKey, $this->HashIV);
+
+            return $this->GenPostHTML($ButtonDesc, $Target);
+        }
         /**
          *  產生 B2C 測標資料
          *
@@ -1752,7 +1788,7 @@ if (!class_exists('EcpayLogistics', false)) {
             if (!empty($Value)) {
                 // 資料型態檢查
                 $this->IsInteger($Name, $Value);
-                
+
                 // 內容檢查
                 $this->IsLegal($Name, $Value);
             }
@@ -1967,7 +2003,7 @@ if (!class_exists('EcpayLogistics', false)) {
          * @param     string    $Name            參數名稱
          * @param     string    $Pattern         格式檢查用正規表示法
          * @param     string    $Value           參數內容
-		 * @param     bool      $ThrowOnMatch    與格式相符
+         * @param     bool      $ThrowOnMatch    與格式相符
          * @return    void
          */
         public function IsValidFormat($Name, $Pattern, $Value, $ThrowOnMatch = false)
@@ -2010,14 +2046,14 @@ if (!class_exists('EcpayLogistics', false)) {
         {
             // 取得合法資料內容
             $ClassName = 'Ecpay' . $Name;
-			$ReflectionObject = new ReflectionClass($ClassName);
-			$ContentList = $ReflectionObject->getConstants();
+            $ReflectionObject = new ReflectionClass($ClassName);
+            $ContentList = $ReflectionObject->getConstants();
             unset($ReflectionObject);
 
-			// 檢查是否為合法資料(含空值)
-			if (!in_array($Value, $ContentList) && !empty($Value)) {
-				throw new Exception('Illegal ' . $Name . '.');
-			}
+            // 檢查是否為合法資料(含空值)
+            if (!in_array($Value, $ContentList) && !empty($Value)) {
+                throw new Exception('Illegal ' . $Name . '.');
+            }
         }
 
         /**
@@ -2068,47 +2104,49 @@ if (!class_exists('EcpayLogistics', false)) {
         {
             $MerchantID = $this->PostParams['MerchantID'];
             $UrlList = array();
-			if ($MerchantID == EcpayTestMerchantID::B2C or $MerchantID == EcpayTestMerchantID::C2C) {
-				// 測試環境
-				$UrlList = array(
-					'CVS_MAP' => EcpayTestURL::CVS_MAP,
-					'SHIPPING_ORDER' => EcpayTestURL::SHIPPING_ORDER,
-					'HOME_RETURN_ORDER' => EcpayTestURL::HOME_RETURN_ORDER,
-					'UNIMART_RETURN_ORDER' => EcpayTestURL::UNIMART_RETURN_ORDER,
-					'HILIFE_RETURN_ORDER' => EcpayTestURL::HILIFE_RETURN_ORDER,
-					'FAMILY_RETURN_ORDER' => EcpayTestURL::FAMILY_RETURN_ORDER,
-					'FAMILY_RETURN_CHECK' => EcpayTestURL::FAMILY_RETURN_CHECK,
-					'UNIMART_UPDATE_LOGISTICS_INFO' => EcpayTestURL::UNIMART_UPDATE_LOGISTICS_INFO,
-					'UNIMART_UPDATE_STORE_INFO' => EcpayTestURL::UNIMART_UPDATE_STORE_INFO,
-					'UNIMART_CANCEL_LOGISTICS_ORDER' => EcpayTestURL::UNIMART_CANCEL_LOGISTICS_ORDER,
-					'QUERY_LOGISTICS_INFO' => EcpayTestURL::QUERY_LOGISTICS_INFO,
-					'PRINT_TRADE_DOC' => EcpayTestURL::PRINT_TRADE_DOC,
-					'PRINT_UNIMART_C2C_BILL' => EcpayTestURL::PRINT_UNIMART_C2C_BILL,
-					'PRINT_FAMILY_C2C_BILL' => EcpayTestURL::PRINT_FAMILY_C2C_BILL,
-					'Print_HILIFE_C2C_BILL' => EcpayTestURL::Print_HILIFE_C2C_BILL,
-					'CREATE_TEST_DATA' => EcpayTestURL::CREATE_TEST_DATA,
-				);
-			} else {
-				// 正式環境
-				$UrlList = array(
-					'CVS_MAP' => EcpayURL::CVS_MAP,
-					'SHIPPING_ORDER' => EcpayURL::SHIPPING_ORDER,
-					'HOME_RETURN_ORDER' => EcpayURL::HOME_RETURN_ORDER,
-					'UNIMART_RETURN_ORDER' => EcpayURL::UNIMART_RETURN_ORDER,
-					'HILIFE_RETURN_ORDER' => EcpayURL::HILIFE_RETURN_ORDER,
-					'FAMILY_RETURN_ORDER' => EcpayURL::FAMILY_RETURN_ORDER,
-					'FAMILY_RETURN_CHECK' => EcpayURL::FAMILY_RETURN_CHECK,
-					'UNIMART_UPDATE_LOGISTICS_INFO' => EcpayURL::UNIMART_UPDATE_LOGISTICS_INFO,
-					'UNIMART_UPDATE_STORE_INFO' => EcpayURL::UNIMART_UPDATE_STORE_INFO,
-					'UNIMART_CANCEL_LOGISTICS_ORDER' => EcpayURL::UNIMART_CANCEL_LOGISTICS_ORDER,
-					'QUERY_LOGISTICS_INFO' => EcpayURL::QUERY_LOGISTICS_INFO,
-					'PRINT_TRADE_DOC' => EcpayURL::PRINT_TRADE_DOC,
-					'PRINT_UNIMART_C2C_BILL' => EcpayURL::PRINT_UNIMART_C2C_BILL,
-					'PRINT_FAMILY_C2C_BILL' => EcpayURL::PRINT_FAMILY_C2C_BILL,
-					'Print_HILIFE_C2C_BILL' => EcpayURL::Print_HILIFE_C2C_BILL,
-					'CREATE_TEST_DATA' => EcpayURL::CREATE_TEST_DATA,
-				);
-			}
+            if ($MerchantID == EcpayTestMerchantID::B2C or $MerchantID == EcpayTestMerchantID::C2C) {
+                // 測試環境
+                $UrlList = array(
+                    'CVS_MAP' => EcpayTestURL::CVS_MAP,
+                    'SHIPPING_ORDER' => EcpayTestURL::SHIPPING_ORDER,
+                    'HOME_RETURN_ORDER' => EcpayTestURL::HOME_RETURN_ORDER,
+                    'UNIMART_RETURN_ORDER' => EcpayTestURL::UNIMART_RETURN_ORDER,
+                    'HILIFE_RETURN_ORDER' => EcpayTestURL::HILIFE_RETURN_ORDER,
+                    'FAMILY_RETURN_ORDER' => EcpayTestURL::FAMILY_RETURN_ORDER,
+                    'FAMILY_RETURN_CHECK' => EcpayTestURL::FAMILY_RETURN_CHECK,
+                    'UNIMART_UPDATE_LOGISTICS_INFO' => EcpayTestURL::UNIMART_UPDATE_LOGISTICS_INFO,
+                    'UNIMART_UPDATE_STORE_INFO' => EcpayTestURL::UNIMART_UPDATE_STORE_INFO,
+                    'UNIMART_CANCEL_LOGISTICS_ORDER' => EcpayTestURL::UNIMART_CANCEL_LOGISTICS_ORDER,
+                    'QUERY_LOGISTICS_INFO' => EcpayTestURL::QUERY_LOGISTICS_INFO,
+                    'PRINT_TRADE_DOC' => EcpayTestURL::PRINT_TRADE_DOC,
+                    'PRINT_UNIMART_C2C_BILL' => EcpayTestURL::PRINT_UNIMART_C2C_BILL,
+                    'PRINT_FAMILY_C2C_BILL' => EcpayTestURL::PRINT_FAMILY_C2C_BILL,
+                    'Print_HILIFE_C2C_BILL' => EcpayTestURL::Print_HILIFE_C2C_BILL,
+                    'Print_OKMART_C2C_BILL' => EcpayTestURL::Print_OKMART_C2C_BILL,
+                    'CREATE_TEST_DATA' => EcpayTestURL::CREATE_TEST_DATA,
+                );
+            } else {
+                // 正式環境
+                $UrlList = array(
+                    'CVS_MAP' => EcpayURL::CVS_MAP,
+                    'SHIPPING_ORDER' => EcpayURL::SHIPPING_ORDER,
+                    'HOME_RETURN_ORDER' => EcpayURL::HOME_RETURN_ORDER,
+                    'UNIMART_RETURN_ORDER' => EcpayURL::UNIMART_RETURN_ORDER,
+                    'HILIFE_RETURN_ORDER' => EcpayURL::HILIFE_RETURN_ORDER,
+                    'FAMILY_RETURN_ORDER' => EcpayURL::FAMILY_RETURN_ORDER,
+                    'FAMILY_RETURN_CHECK' => EcpayURL::FAMILY_RETURN_CHECK,
+                    'UNIMART_UPDATE_LOGISTICS_INFO' => EcpayURL::UNIMART_UPDATE_LOGISTICS_INFO,
+                    'UNIMART_UPDATE_STORE_INFO' => EcpayURL::UNIMART_UPDATE_STORE_INFO,
+                    'UNIMART_CANCEL_LOGISTICS_ORDER' => EcpayURL::UNIMART_CANCEL_LOGISTICS_ORDER,
+                    'QUERY_LOGISTICS_INFO' => EcpayURL::QUERY_LOGISTICS_INFO,
+                    'PRINT_TRADE_DOC' => EcpayURL::PRINT_TRADE_DOC,
+                    'PRINT_UNIMART_C2C_BILL' => EcpayURL::PRINT_UNIMART_C2C_BILL,
+                    'PRINT_FAMILY_C2C_BILL' => EcpayURL::PRINT_FAMILY_C2C_BILL,
+                    'Print_HILIFE_C2C_BILL' => EcpayURL::Print_HILIFE_C2C_BILL,
+                    'Print_OKMART_C2C_BILL' => EcpayURL::Print_OKMART_C2C_BILL,
+                    'CREATE_TEST_DATA' => EcpayURL::CREATE_TEST_DATA,
+                );
+            }
 
             return $UrlList[$FunctionType];
         }
@@ -2231,13 +2269,13 @@ if (!class_exists('EcpayLogistics', false)) {
         }
 
         /**
-        * 產生檢查碼
+         * 產生檢查碼
          *
          * @param     array    $Params     產生檢查碼用參數
          * @param     string   $HashKey    HashKey
          * @param     string   $HashIV     HashIV
          * @return    string
-        */
+         */
         public static function GenerateCheckMacValue($Params = array(), $HashKey = '', $HashIV = '')
         {
             $MacValue = '' ;
@@ -2273,20 +2311,20 @@ if (!class_exists('EcpayLogistics', false)) {
         }
 
         /**
-        * 自訂排序使用
+         * 自訂排序使用
          * @param     string   $Current    目前資料
          * @param     string   $Next       下一筆資料
-        */
+         */
         public static function MerchantSort($Current, $Next)
         {
             return strcasecmp($Current, $Next);
         }
 
         /**
-        * 參數內特殊字元取代
+         * 參數內特殊字元取代
          * @param     string   $Target    取代目標
-        *  @return    string
-        */
+         *  @return    string
+         */
         public static function ReplaceSymbol($Target)
         {
             $Replaced = '';
@@ -2304,11 +2342,11 @@ if (!class_exists('EcpayLogistics', false)) {
 
 
 if (!class_exists('EcpayCheckMacValue', true)) {
-	class EcpayCheckMacValue
-	{
-		/**
-		* 產生檢查碼
-		*/
+    class EcpayCheckMacValue
+    {
+        /**
+         * 產生檢查碼
+         */
         public static function Generate($Params = array(), $HashKey = '', $HashIV = '')
         {
             if (isset($Params) ){
@@ -2338,66 +2376,66 @@ if (!class_exists('EcpayCheckMacValue', true)) {
             }
 
             return $MacValue ;
-		}
+        }
 
         /**
-        * 自訂排序使用
+         * 自訂排序使用
          * @param     string   $Current    目前資料
          * @param     string   $Next       下一筆資料
-        */
+         */
         private static function MerchantSort($Current, $Next)
         {
             return strcasecmp($Current, $Next);
         }
 
-	    /**
-		* 參數內特殊字元取代
-		* 傳入	$sParameters	參數
-		* 傳出	$sParameters	回傳取代後變數
-		*/
-		public static function ReplaceSymbol($sParameters){
-			if(!empty($sParameters)){
-				$sParameters = str_replace('%2D', '-', $sParameters);
-				$sParameters = str_replace('%2d', '-', $sParameters);
-				$sParameters = str_replace('%5F', '_', $sParameters);
-				$sParameters = str_replace('%5f', '_', $sParameters);
-				$sParameters = str_replace('%2E', '.', $sParameters);
-				$sParameters = str_replace('%2e', '.', $sParameters);
-				$sParameters = str_replace('%21', '!', $sParameters);
-				$sParameters = str_replace('%2A', '*', $sParameters);
-				$sParameters = str_replace('%2a', '*', $sParameters);
-				$sParameters = str_replace('%28', '(', $sParameters);
-				$sParameters = str_replace('%29', ')', $sParameters);
-			}
+        /**
+         * 參數內特殊字元取代
+         * 傳入	$sParameters	參數
+         * 傳出	$sParameters	回傳取代後變數
+         */
+        public static function ReplaceSymbol($sParameters){
+            if(!empty($sParameters)){
+                $sParameters = str_replace('%2D', '-', $sParameters);
+                $sParameters = str_replace('%2d', '-', $sParameters);
+                $sParameters = str_replace('%5F', '_', $sParameters);
+                $sParameters = str_replace('%5f', '_', $sParameters);
+                $sParameters = str_replace('%2E', '.', $sParameters);
+                $sParameters = str_replace('%2e', '.', $sParameters);
+                $sParameters = str_replace('%21', '!', $sParameters);
+                $sParameters = str_replace('%2A', '*', $sParameters);
+                $sParameters = str_replace('%2a', '*', $sParameters);
+                $sParameters = str_replace('%28', '(', $sParameters);
+                $sParameters = str_replace('%29', ')', $sParameters);
+            }
 
-			return $sParameters ;
-		}
+            return $sParameters ;
+        }
 
-		/**
-		* 參數內特殊字元還原
-		* 傳入	$sParameters	參數
-		* 傳出	$sParameters	回傳取代後變數
-		*/
-		public static function ReplaceSymbolDecode($sParameters){
-			if(!empty($sParameters)){
-				$sParameters = str_replace('-', '%2d', $sParameters);
-				$sParameters = str_replace('_', '%5f', $sParameters);
-				$sParameters = str_replace('.', '%2e', $sParameters);
-				$sParameters = str_replace('!', '%21', $sParameters);
-				$sParameters = str_replace('*', '%2a', $sParameters);
-				$sParameters = str_replace('(', '%28', $sParameters);
-				$sParameters = str_replace(')', '%29', $sParameters);
-				$sParameters = str_replace('+', '%20', $sParameters);
-			}
+        /**
+         * 參數內特殊字元還原
+         * 傳入	$sParameters	參數
+         * 傳出	$sParameters	回傳取代後變數
+         */
+        public static function ReplaceSymbolDecode($sParameters){
+            if(!empty($sParameters)){
+                $sParameters = str_replace('-', '%2d', $sParameters);
+                $sParameters = str_replace('_', '%5f', $sParameters);
+                $sParameters = str_replace('.', '%2e', $sParameters);
+                $sParameters = str_replace('!', '%21', $sParameters);
+                $sParameters = str_replace('*', '%2a', $sParameters);
+                $sParameters = str_replace('(', '%28', $sParameters);
+                $sParameters = str_replace(')', '%29', $sParameters);
+                $sParameters = str_replace('+', '%20', $sParameters);
+            }
 
-			return $sParameters ;
-		}
-	}
+            return $sParameters ;
+        }
+    }
 }
 
 if (!class_exists('EcpayIo', true)) {
-	class EcpayIo
-	{
+    class EcpayIo
+    {
         /**
          * Server Post
          *
@@ -2439,7 +2477,7 @@ if (!class_exists('EcpayIo', true)) {
             curl_close($Ch);
 
             return $Result;
-		}
-	}
+        }
+    }
 }
 ?>
