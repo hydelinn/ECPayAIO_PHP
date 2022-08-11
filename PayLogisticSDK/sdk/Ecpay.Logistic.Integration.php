@@ -22,6 +22,7 @@ if (!class_exists('EcpayLogisticsSubType', false)) {
     abstract class EcpayLogisticsSubType {
         const TCAT = 'TCAT';// 黑貓(宅配)
         const ECAN = 'ECAN';// 宅配通
+        const POST = 'POST';// 中華郵政
         const FAMILY = 'FAMI';// 全家
         const UNIMART = 'UNIMART';// 統一超商
         const HILIFE = 'HILIFE';// 萊爾富
